@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define A 30//sets an area of 30by60
+#define B 60
+
+int a,b,Field[A][B],x,y,Gy,Head,Tail;
+void snakeInitialization()
+{
+    for(a=0;a<A;a++)
+    {
+        for(b=0;b<B;b++)
+        {
+            Field[a][b]=0;
+        }
+    }
+    x=A/2; y=B/2; Gy=y; Head=5; Tail=1;
+    for(a=0;a<Head;a++)
+    {
+        Gy++;
+        Field[x][Gy-Head]=a+1;
+    }
+}
+void print()
+{
+for(a=0;a<=B+1;a++)
+    {
+        if(a==0)
+            {printf("|");//top left corner
+        }else if(a==B+1)
+            {printf("|");}//top right corner
+        else
+            {printf("-");}//top layer
+    }
+    printf("\n");//makes a new line for the play space
+
+    for(a=0;a<A;a++)
+    {
+        printf("|");//left wall of boundary
+        for(b=0;b<B;b++)
+        {if(Field[a][b]==0)
+            printf(" ");//moves the snake start posisition (to the right)
+        if(Field[a][b]>0 && Field[a][b]!=Head)
+            printf("*");//snake tail
+        if(Field[a][b]==Head)
+            printf("*");//snake head
+        if(Field[a][b]==-1)
+            printf("%c",15);//???may be part of movement
+        if(b==B-1)
+            printf("|\n");//empty play field(right boundary wall)
+    }
+}
+ for(a=0;a<=B+1;a++)
+    {
+        if(a==0)
+            {printf("|");}//bottom left conner
+        else if(a==B+1)
+            {printf("|");}//bottom right corner
+        else
+            {printf("-");}//bottom layer
+    }
+}
+int main()
+{
+    {snakeInitialization();
+    print();}
+}
