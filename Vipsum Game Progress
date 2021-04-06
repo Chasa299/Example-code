@@ -1,0 +1,264 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>//statement that tells compiler where to insert contents of stdio.h
+#include <time.h>//unsure
+#include <conio.h>
+
+#define A 30
+#define B 70
+
+int a, b, Game, x, y, Gy, Head, Tail, Field[A][B], food, q, p, key, dir, score, Highscore, Speed;
+
+FILE*f;
+
+int main()
+{
+    snakeBody();
+    while(Game==0)
+    {
+    print();
+    PositionGame();
+    foodPlacement();
+    moveSnake();
+    keepTail();
+    Sleep(Speed);
+    }
+}
+
+void snakeBody()
+{
+    f=fopen("highscore.txt","r");
+    fscanf(f,"%d",&Highscore);
+    fclose(f);
+
+    for(a=0;a<A;a++)
+    {
+        for(b=0;b<B;b++)
+        {
+            Field[A][B]=0;
+        }
+    }
+
+x=A/2; y=B/2; Head=5; Tail=1; Gy=y; food=0; dir='d'; score=0, Speed=99;
+
+    for(a=0;a<Head;a++)
+    {
+        Gy++;
+        Field[x][Gy-Head]= a+1;
+    }
+}
+
+void print()//prints game boundary and snake
+{
+for(a=0;a<=B+1;a++)
+{
+    if(a==0)
+    {
+        printf("|");//left corner
+    }
+    else if(a==B+1)
+    {
+        printf("|");//right corner
+    }
+    else
+    {
+        printf("-");//top wall
+    }
+}
+printf("Score: %d\t\tYour Highscore: %d",score,Highscore);
+printf("\n");//new line
+
+for(a=0;a<A;a++)
+ {
+     printf("|");//left wall
+
+     for(b=0;b<B;b++)
+     {
+        if(Field[a][b]==0)
+            printf(" ");//new empty center
+        if(Field[a][b]>0 && Field[a][b]!=Head)
+            printf("*");//prints Snake tail
+        if(Field[a][b]==Head)
+            printf("*");//prints Snake head
+        if(Field[a][b]==-1)
+            printf("%c",15);//prints food pellet
+        if(b==B-1)
+            printf("|\n");//right wall
+     }
+ }
+     for(a=0;a<=B+1;a++)
+     {
+         if(a==0)
+         {
+             printf("|");//bottom left corner
+         }
+         else if(a==B+1)
+         {
+             printf("|");//bottom right corner
+         }
+         else
+         {
+             printf("-");//bottom wall
+         }
+     }
+ }
+
+void PositionGame()//sets where the game is printed in each game loop to the top left corner of program
+{
+HANDLE hOut;
+COORD Position;
+hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+Position.X=0;
+Position.Y=0;
+SetConsoleCursorPosition(hOut,Position);
+}
+
+void foodPlacement()//randomizes the placement of the food in game
+{
+srand(time(0));
+q=1+rand()%28;
+p=1+rand()%68;
+
+if(food==0 && Field[q][p]==0)
+    {
+        Field[q][p]=-1;
+        food=1;
+        if(Speed>10 && score!=0)
+            Speed = Speed - 5;//increases the speed of snake as it eats
+    }
+}
+
+int getch_noblock()//a part of the code for moving the snake
+{
+    if(_kbhit())
+        return _getch();
+    else
+        return -1;
+    }
+
+void moveSnake()//code that takes keyboard controls for moving snake
+{
+    key=getch_noblock();
+    key=tolower(key);
+
+        if(((key=='d'||key=='a')||(key=='w'||key=='s'))&&(abs(dir-key)>5)) dir=key;//prevents movement from the head into the tail
+
+    if(dir=='d')
+    {
+        y++;
+        if(y==B)
+            GameOver();//game overs when hitting the r wall
+        if(Field[x][y]!=0 && Field[x][y]!=-1)
+            GameOver();//game overs when snake head hits tail
+        if(Field[x][y]==-1)
+        {
+            food=0;
+            Tail-=1;
+            score+=1;
+        }
+        Head++;
+        Field[x][y]=Head;
+    }
+    if(dir=='a')
+    {
+        y--;
+        if(y==-1)
+            GameOver();
+        if(Field[x][y]!=0 && Field[x][y]!=-1)
+            GameOver();
+        if(Field[x][y]==-1)
+        {
+            food=0;
+            Tail-=1;
+            score+=1;
+        }
+        Head++;
+        Field[x][y]=Head;
+    }
+    if(dir=='s')
+    {
+        x++;
+        if(x==A)
+            GameOver();
+        if(Field[x][y]!=0 && Field[x][y]!=-1)
+            GameOver();
+        if(Field[x][y]==-1)
+        {
+            food=0;
+            Tail-=1;
+            score+=1;
+        }
+        Head++;
+        Field[x][y]=Head;
+    }
+    if(dir=='w')
+    {
+        x--;
+        if(x==-1)
+            GameOver();
+        if(Field[x][y]!=0 && Field[x][y]!=-1)
+            GameOver();
+        if(Field[x][y]==-1)
+        {
+            food=0;
+            Tail-=1;
+            score+=1;
+        }
+        Head++;
+        Field[x][y]=Head;
+    }
+}
+
+void keepTail()//moves tail along with snake
+{
+
+
+    for(a=0;a<A;a++)
+    {
+        for(b=0;b<B;b++)
+            {
+            if(Field[a][b]==Tail)
+                {
+                    Field[a][b]=0;
+                }
+            }
+    }
+Tail++;
+}
+
+void GameOver()
+{
+    Sleep(750);
+    system("Cls");
+
+    if(score>Highscore)
+    {
+        printf("Highscore %d",score);
+        system("pause");
+        f=fopen("highscore.txt","w");
+        fprintf(f,"%d",score);
+        fclose(f);
+    }
+
+    system("Cls");
+
+printf("Game Over");
+
+    while(1)
+    {
+        key=getch_noblock();
+        if(key==13)
+        {
+            Game=0;
+            snakeBody();
+            break;//should restart snake game but still keeps the last game; need to fix this part
+        }
+        else if(key==27)
+        {
+            Game=1;
+            break;
+        }
+    }
+    system("Cls");
+}
+
